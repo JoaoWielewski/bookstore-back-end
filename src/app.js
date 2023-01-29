@@ -1,8 +1,13 @@
 import express from 'express';
+import cors from 'cors';
 
-import { getBooks, getBook } from './queries.js';
+import { getBooks, getBook, createUser } from './queries.js';
 
 const app = express();
+
+app.use(express.json({ limit: '1mb' }));
+
+app.use(cors());
 
 app.get('/books', async (req, res) => {
   const books = await getBooks();
@@ -10,9 +15,16 @@ app.get('/books', async (req, res) => {
 });
 
 app.get('/books/:id', async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params.id;
   const book = await getBook(id);
   res.send(book);
+});
+
+app.post('/users', async (req, res) => {
+  console.log(req.body);
+  const { name, password } = req.body;
+  const user = await createUser(name, password);
+  res.status(201).send(user);
 });
 
 app.listen(8080, () => {
