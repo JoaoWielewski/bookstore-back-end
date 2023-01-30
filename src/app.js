@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { getBooks, getBook, createUser } from './queries.js';
+import signupSchema from './validator.js';
 
 const app = express();
 
@@ -21,12 +22,19 @@ app.get('/books/:id', async (req, res) => {
 });
 
 app.post('/users', async (req, res) => {
+  try {
+    await signupSchema.validateAsync(req.body, { abortEarly: false });
+  } catch (err) {
+    console.log(err.details);
+    res.status(502).send(err.details);
+    return err.details;
+  }
+
   const { email, password } = req.body;
   const user = await createUser(email, password);
   res.status(201).send(user);
 });
 
 app.listen(8080, () => {
-  // eslint-disable-next-line no-console
   console.log('Server is running on port 8080');
 });
