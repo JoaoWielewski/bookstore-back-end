@@ -14,10 +14,10 @@ export async function getBook(id) {
   return result[0];
 }
 
-export async function createUser(name, password) {
+export async function createUser(email, password) {
   const [result] = await pool.query(`
-  INSERT INTO users(name, password)
+  INSERT INTO users(email, password)
   VALUES (?, ?)
-  `, [name, password]);
+  `, [email, password]);
   return result;
 }

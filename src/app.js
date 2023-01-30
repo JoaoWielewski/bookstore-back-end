@@ -21,9 +21,8 @@ app.get('/books/:id', async (req, res) => {
 });
 
 app.post('/users', async (req, res) => {
-  console.log(req.body);
-  const { name, password } = req.body;
-  const user = await createUser(name, password);
+  const { email, password } = req.body;
+  const user = await createUser(email, password);
   res.status(201).send(user);
 });
 
