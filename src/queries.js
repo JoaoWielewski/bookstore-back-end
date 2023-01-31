@@ -5,7 +5,7 @@ export async function getBooks() {
   return result;
 }
 
-export async function getBook(id) {
+export async function getBookById(id) {
   const [result] = await pool.query(`
   SELECT id, name, price, img_src
   FROM books
@@ -20,4 +20,13 @@ export async function createUser(email, password) {
   VALUES (?, ?)
   `, [email, password]);
   return result;
+}
+
+export async function getUserByEmail(email) {
+  const [result] = await pool.query(`
+  SELECT email
+  FROM users
+  WHERE email = ?
+  `, [email]);
+  return result[0];
 }

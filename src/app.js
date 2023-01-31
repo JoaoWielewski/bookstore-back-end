@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 
-import { getBooks, getBook, createUser } from './queries.js';
+import {
+  getBooks, getBookById, createUser, getUserByEmail,
+} from './queries.js';
 import signupSchema from './validator.js';
 
 const app = express();
@@ -16,9 +18,15 @@ app.get('/books', async (req, res) => {
 });
 
 app.get('/books/:id', async (req, res) => {
-  const { id } = req.params.id;
-  const book = await getBook(id);
+  const { id } = req.params;
+  const book = await getBookById(id);
   res.send(book);
+});
+
+app.get('/users/:email', async (req, res) => {
+  const { email } = req.params;
+  const user = await getUserByEmail(email);
+  res.send(user);
 });
 
 app.post('/users', async (req, res) => {
