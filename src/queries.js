@@ -30,3 +30,12 @@ export async function getUserByEmail(email) {
   `, [email]);
   return result[0];
 }
+
+export async function getUser(email, password) {
+  const [result] = await pool.query(`
+    SELECT id, email
+    FROM users
+    WHERE email = ? AND password = ?
+  `, [email, password]);
+  return result[0];
+}

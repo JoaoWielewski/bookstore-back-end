@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import {
-  getBooks, getBookById, createUser, getUserByEmail,
+  getBooks, getBookById, createUser, getUserByEmail, getUser,
 } from './queries.js';
 import signupSchema from './validator.js';
 
@@ -26,6 +26,12 @@ app.get('/books/:id', async (req, res) => {
 app.get('/users/:email', async (req, res) => {
   const { email } = req.params;
   const user = await getUserByEmail(email);
+  res.send(user);
+});
+
+app.get('/users/:email/:password', async (req, res) => {
+  const { email, password } = req.params;
+  const user = await getUser(email, password);
   res.send(user);
 });
 
