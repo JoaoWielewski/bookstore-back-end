@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import {
   getBooks, getBookById, createUser, getUserByEmail, getUser,
@@ -40,7 +41,26 @@ app.get('/users/:email/:password', async (req, res) => {
   try {
     if (await bcrypt.compare(password, user.password)) {
       delete user.password;
-      console.log(user);
+      res.send(user);
+    } else {
+      res.send();
+    }
+  } catch {
+    res.status(500).send();
+  }
+});
+
+app.get('/login/:email/:password', async (req, res) => {
+  const { email, password } = req.params;
+  const user = await getUser(email);
+
+  if (user == null) {
+    return res.status(400).send();
+  }
+  try {
+    if (await bcrypt.compare(password, user.password)) {
+      delete user.password;
+      user.jwt = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
       res.send(user);
     } else {
       res.send();
