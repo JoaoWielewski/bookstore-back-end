@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import bcrypt from 'bcrypt';
 
 import {
   getBooks, getBookById, createUser, getUserByEmail, getUser,
@@ -31,8 +32,22 @@ app.get('/users/:email', async (req, res) => {
 
 app.get('/users/:email/:password', async (req, res) => {
   const { email, password } = req.params;
-  const user = await getUser(email, password);
-  res.send(user);
+  const user = await getUser(email);
+
+  if (user == null) {
+    return res.status(400).send();
+  }
+  try {
+    if (await bcrypt.compare(password, user.password)) {
+      delete user.password;
+      console.log(user);
+      res.send(user);
+    } else {
+      res.send();
+    }
+  } catch {
+    res.status(500).send();
+  }
 });
 
 app.post('/users', async (req, res) => {
@@ -45,7 +60,8 @@ app.post('/users', async (req, res) => {
   }
 
   const { email, password } = req.body;
-  const user = await createUser(email, password);
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await createUser(email, hashedPassword);
   res.status(201).send(user);
 });
 

@@ -31,11 +31,11 @@ export async function getUserByEmail(email) {
   return result[0];
 }
 
-export async function getUser(email, password) {
+export async function getUser(email) {
   const [result] = await pool.query(`
-    SELECT id, email
+    SELECT id, email, password
     FROM users
-    WHERE email = ? AND password = ?
-  `, [email, password]);
+    WHERE email = ?
+  `, [email]);
   return result[0];
 }
