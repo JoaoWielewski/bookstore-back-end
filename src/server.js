@@ -33,7 +33,7 @@ app.get('/users/:email', async (req, res) => {
   res.send(user);
 });
 
-app.get('books/user', authenticateToken, async (req, res) => {
+app.get('/bookuser', authenticateToken, async (req, res) => {
   const books = await getBooksByUser(req.user.id);
   res.send(books);
 });

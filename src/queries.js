@@ -46,7 +46,7 @@ export async function getBooksByUser(idUser) {
     FROM books
     WHERE id_user = ?
   `, [idUser]);
-  return result[0];
+  return result;
 }
 
 export async function registerBook(name, price, imgSrc, userId) {
