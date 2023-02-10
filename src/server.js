@@ -4,9 +4,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import {
-  getBooks, getBookById, createUser, getUserByEmail, getUser,
+  getBooks, getBookById, createUser, getUserByEmail, getUser, getBooksByUser, registerBook,
 } from './queries.js';
-import signupSchema from './validator.js';
+import signupSchema from './schemas/signup-schema.js';
+import bookSchema from './schemas/book-schema.js';
+import authenticateToken from './middlewares.js';
 
 const app = express();
 
@@ -29,6 +31,11 @@ app.get('/users/:email', async (req, res) => {
   const { email } = req.params;
   const user = await getUserByEmail(email);
   res.send(user);
+});
+
+app.get('books/user', authenticateToken, async (req, res) => {
+  const books = await getBooksByUser(req.user.id);
+  res.send(books);
 });
 
 app.get('/users/:email/:password', async (req, res) => {
@@ -59,6 +66,8 @@ app.get('/login/:email/:password', async (req, res) => {
   }
   try {
     if (await bcrypt.compare(password, user.password)) {
+      user.id = user.iduser;
+      delete user.iduser;
       delete user.password;
       user.jwt = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
       res.send(user);
@@ -74,7 +83,6 @@ app.post('/users', async (req, res) => {
   try {
     await signupSchema.validateAsync(req.body, { abortEarly: false });
   } catch (err) {
-    console.log(err.details);
     res.status(502).send(err.details);
     return err.details;
   }
@@ -83,6 +91,23 @@ app.post('/users', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await createUser(email, hashedPassword);
   res.status(201).send(user);
+});
+
+app.post('/books', authenticateToken, async (req, res) => {
+  try {
+    await bookSchema.validateAsync(req.body, { abortEarly: false });
+  } catch (err) {
+    res.status(502).send(err.detais);
+  }
+
+  const { name, price, imgSrc } = req.body;
+  const userId = req.user.id;
+  try {
+    const book = await registerBook(name, price, imgSrc, userId);
+    res.status(201).send(book);
+  } catch (err) {
+    res.status(500);
+  }
 });
 
 app.listen(8080, () => {
