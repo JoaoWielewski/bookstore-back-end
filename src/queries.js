@@ -56,3 +56,12 @@ export async function registerBook(name, price, imgSrc, userId) {
   `, [name, price, imgSrc, userId]);
   return result;
 }
+
+export async function bookOwner(idBook) {
+  const [result] = await pool.query(`
+    SELECT id_user
+    FROM books
+    WHERE idbook = ?
+  `, [idBook]);
+  return result[0];
+}

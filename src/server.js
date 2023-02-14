@@ -4,8 +4,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import {
-  getBooks, getBookById, createUser, getUserByEmail, getUser, getBooksByUser, registerBook,
+  getBooks, getBookById, createUser, getUserByEmail,
+  getUser, getBooksByUser, registerBook, bookOwner,
 } from './queries.js';
+
 import signupSchema from './schemas/signup-schema.js';
 import bookSchema from './schemas/book-schema.js';
 import authenticateToken from './middlewares.js';
@@ -36,6 +38,12 @@ app.get('/users/:email', async (req, res) => {
 app.get('/bookuser', authenticateToken, async (req, res) => {
   const books = await getBooksByUser(req.user.id);
   res.send(books);
+});
+
+app.get('/bookowner/:bookId', async (req, res) => {
+  const { bookId } = req.params;
+  const userId = await bookOwner(bookId);
+  res.send(userId);
 });
 
 app.get('/users/:email/:password', async (req, res) => {
