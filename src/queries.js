@@ -1,13 +1,13 @@
 import pool from './config/db.js';
 
 export async function getBooks() {
-  const [result] = await pool.query('SELECT idbook, name, price, img_src FROM books');
+  const [result] = await pool.query('SELECT idbook, name, price, img_src, description FROM books');
   return result;
 }
 
 export async function getBookById(bookId) {
   const [result] = await pool.query(`
-  SELECT idbook, name, price, img_src
+  SELECT idbook, name, price, img_src, description
   FROM books
   WHERE idbook = ?
   `, [bookId]);
@@ -49,11 +49,11 @@ export async function getBooksByUser(idUser) {
   return result;
 }
 
-export async function registerBook(name, price, imgSrc, userId) {
+export async function registerBook(name, price, imgSrc, description, userId) {
   const [result] = await pool.query(`
-  INSERT INTO books(name, price, img_src, id_user)
-  VALUES (?, ?, ?, ?)
-  `, [name, price, imgSrc, userId]);
+  INSERT INTO books(name, price, img_src, description, id_user)
+  VALUES (?, ?, ?, ?, ?)
+  `, [name, price, imgSrc, description, userId]);
   return result;
 }
 

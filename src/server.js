@@ -32,7 +32,12 @@ app.get('/books/:id', async (req, res) => {
 app.get('/users/:email', async (req, res) => {
   const { email } = req.params;
   const user = await getUserByEmail(email);
-  res.send(user);
+
+  if (user) {
+    res.send(user);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 app.get('/bookuser', authenticateToken, async (req, res) => {
@@ -58,7 +63,7 @@ app.get('/users/:email/:password', async (req, res) => {
       delete user.password;
       res.send(user);
     } else {
-      res.send();
+      res.sendStatus(404);
     }
   } catch {
     res.status(500).send();
@@ -108,10 +113,12 @@ app.post('/books', authenticateToken, async (req, res) => {
     res.status(502).send(err.detais);
   }
 
-  const { name, price, imgSrc } = req.body;
+  const {
+    name, price, imgSrc, description,
+  } = req.body;
   const userId = req.user.id;
   try {
-    const book = await registerBook(name, price, imgSrc, userId);
+    const book = await registerBook(name, price, imgSrc, description, userId);
     res.status(201).send(book);
   } catch (err) {
     res.status(500);
