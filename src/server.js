@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 import {
   getBooks, getBookById, createUser, getUserByEmail,
-  getUser, getBooksByUser, registerBook, bookOwner,
+  getUser, getBooksByUser, registerBook, bookOwner, deleteBookById,
 } from './queries.js';
 
 import signupSchema from './schemas/signup-schema.js';
@@ -49,6 +49,13 @@ app.get('/bookowner/:bookId', async (req, res) => {
   const { bookId } = req.params;
   const userId = await bookOwner(bookId);
   res.send(userId);
+});
+
+app.delete('/deletebook/:bookId', authenticateToken, async (req, res) => {
+  const { bookId } = req.params;
+  const userId = req.user.id;
+  const result = await deleteBookById(bookId, userId);
+  res.send(result);
 });
 
 app.get('/users/:email/:password', async (req, res) => {

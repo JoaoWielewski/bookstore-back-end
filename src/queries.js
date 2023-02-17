@@ -57,11 +57,24 @@ export async function registerBook(name, price, imgSrc, description, userId) {
   return result;
 }
 
-export async function bookOwner(idBook) {
+export async function bookOwner(bookId) {
   const [result] = await pool.query(`
     SELECT id_user
     FROM books
     WHERE idbook = ?
-  `, [idBook]);
+  `, [bookId]);
   return result[0];
+}
+
+export async function deleteBookById(bookId, userId) {
+  try {
+    const [result] = await pool.query(`
+      DELETE FROM books
+      WHERE idbook = ? AND id_user = ?
+    `, [bookId, userId]);
+    return result.affectedRows === 1;
+  } catch (error) {
+    console.error(`Error deleting book with ID ${bookId}: ${error}`);
+    return false;
+  }
 }
