@@ -74,7 +74,21 @@ export async function deleteBookById(bookId, userId) {
     `, [bookId, userId]);
     return result.affectedRows === 1;
   } catch (error) {
-    console.error(`Error deleting book with ID ${bookId}: ${error}`);
+    console.log(`Error deleting book with ID ${bookId}: ${error}`);
+    return false;
+  }
+}
+
+export async function editBookById(bookId, name, price, imgSrc, description, userId) {
+  try {
+    const [result] = await pool.query(`
+      UPDATE books
+      SET name = ?, price = ?, img_src = ?, description = ?
+      WHERE idbook = ? AND id_user = ?
+    `, [name, price, imgSrc, description, bookId, userId]);
+    return result;
+  } catch (error) {
+    console.log(`Error editing book with ID ${bookId}: ${error}`);
     return false;
   }
 }

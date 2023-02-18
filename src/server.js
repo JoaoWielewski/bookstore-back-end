@@ -5,7 +5,8 @@ import jwt from 'jsonwebtoken';
 
 import {
   getBooks, getBookById, createUser, getUserByEmail,
-  getUser, getBooksByUser, registerBook, bookOwner, deleteBookById,
+  getUser, getBooksByUser, registerBook, bookOwner,
+  deleteBookById, editBookById,
 } from './queries.js';
 
 import signupSchema from './schemas/signup-schema.js';
@@ -56,6 +57,22 @@ app.delete('/deletebook/:bookId', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   const result = await deleteBookById(bookId, userId);
   res.send(result);
+});
+
+app.put('/editbook/:bookId', authenticateToken, async (req, res) => {
+  const { bookId } = req.params;
+  const {
+    name, price, imgSrc, description,
+  } = req.body;
+  const userId = req.user.id;
+
+  const result = await editBookById(bookId, name, price, imgSrc, description, userId);
+
+  if (result) {
+    res.status(204).send();
+  } else {
+    res.status(500).send({ error: 'Failed to edit book.' });
+  }
 });
 
 app.get('/users/:email/:password', async (req, res) => {
