@@ -21,7 +21,25 @@ export const sendEmailOnRegister = async (recipientEmail) => {
     from: process.env.EMAIL_USER,
     to: recipientEmail,
     subject: 'Welcome to BookStore!',
-    text: 'Dear customer, \n\nThank you for registering at BookStore. We\'re excited to have you as a part of our community and we can\'t wait to help you discover your next favorite book! \n\nBest regards, BookStore.',
+    html: `
+      <html>
+        <head>
+          <style>
+            h1 {
+              color: #000058;
+              font-size: 24px;
+            }
+            p {
+              color: black;
+              font-size: 16px;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Welcome to BookStore!</h1>
+          <p>Dear customer, <br><br>Thank you for registering at BookStore. We're excited to have you as a part of our community and we can't wait to help you discover your next favorite book! <br><br>Best regards, BookStore.</p>
+        </body>
+      </html>`,
   };
 
   sendEmail(mailOptions);
@@ -39,7 +57,35 @@ export const sendEmailOnPayment = async (recipientEmail, bookNames, totalPrice) 
     from: process.env.EMAIL_USER,
     to: recipientEmail,
     subject: 'Successfull payment!',
-    text: `Dear customer, your order has been confirmed! \n\nYou successfully bought the following books: ${separatedBookNames}.\n\nYour total purchase amount was $${totalPrice}. \n\nWe appreciate your business and hope you enjoy your new books! \n\nBest regards, BookStore.`,
+    //text: `Dear customer, your order has been confirmed! \n\nYou successfully bought the following books: ${separatedBookNames}.\n\nYour total purchase amount was $${totalPrice}. \n\nWe appreciate your business and hope you enjoy your new books! \n\nBest regards, BookStore.`,
+    html: `
+      <html>
+        <head>
+          <style>
+            h1 {
+              color: #000058;
+              font-size: 24px;
+            }
+            p {
+              color: black;
+              font-size: 16px;
+            }
+            .price {
+              color: rgb(192, 168, 31);
+              font-size: 18px;
+            }
+            .books {
+              color: black;
+              font-size: 16px;
+              font-weight: bold;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Successfull payment!</h1>
+          <p>Dear customer, your order has been confirmed! <br><br>You successfully bought the following books: <span class="books">${separatedBookNames}</span>.<br><br>Your total purchase amount was <span class="price">$${totalPrice}</span>. <br><br>We appreciate your business and hope you enjoy your new books! <br><br>Best regards, BookStore.</p>
+        </body>
+      </html>`,
   };
 
   sendEmail(mailOptions);
