@@ -8,6 +8,7 @@ import {
   getUser, getBooksByUser, registerBook, bookOwner,
   deleteBookById, editBookById,
 } from './queries.js';
+import { sendEmailOnPayment, sendEmailOnRegister } from './utils/email.js';
 
 import signupSchema from './schemas/signup-schema.js';
 import bookSchema from './schemas/book-schema.js';
@@ -145,6 +146,30 @@ app.post('/books', authenticateToken, async (req, res) => {
     const book = await registerBook(name, price, imgSrc, description, userId);
     res.status(201).send(book);
   } catch (err) {
+    res.status(500);
+  }
+});
+
+app.post('/sendemailregister', async (req, res) => {
+  const { recipientEmail } = req.body;
+
+  try {
+    sendEmailOnRegister(recipientEmail);
+    res.status(200);
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+  }
+});
+
+app.post('/sendemailpayment', async (req, res) => {
+  const { recipientEmail, bookNames, totalPrice } = req.body;
+
+  try {
+    sendEmailOnPayment(recipientEmail, bookNames, totalPrice);
+    res.status(200);
+  } catch (error) {
+    console.log(error);
     res.status(500);
   }
 });
