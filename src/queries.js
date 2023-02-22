@@ -92,3 +92,29 @@ export async function editBookById(bookId, name, price, imgSrc, description, use
     return false;
   }
 }
+
+export async function getBooksBySearch(searchValue) {
+  try {
+    const [result] = await pool.query(`
+      SELECT idbook, name, price, img_src, description
+      FROM books
+      WHERE name LIKE ?
+    `, [`%${searchValue}%`]);
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getBooksByUserBySearch(userId, searchValue) {
+  try {
+    const [result] = await pool.query(`
+      SELECT idbook, name, price, img_src, description
+      FROM books
+      WHERE id_user = ? AND name LIKE ?
+    `, [userId, `%${searchValue}%`]);
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import {
   getBooks, getBookById, createUser, getUserByEmail,
   getUser, getBooksByUser, registerBook, bookOwner,
-  deleteBookById, editBookById,
+  deleteBookById, editBookById, getBooksBySearch, getBooksByUserBySearch,
 } from './queries.js';
 import { sendEmailOnPayment, sendEmailOnRegister } from './utils/email.js';
 
@@ -22,6 +22,12 @@ app.use(cors());
 
 app.get('/books', async (req, res) => {
   const books = await getBooks();
+  res.send(books);
+});
+
+app.get('/books/search/:searchValue', async (req, res) => {
+  const { searchValue } = req.params;
+  const books = await getBooksBySearch(searchValue);
   res.send(books);
 });
 
@@ -42,8 +48,16 @@ app.get('/users/:email', async (req, res) => {
   }
 });
 
-app.get('/bookuser', authenticateToken, async (req, res) => {
-  const books = await getBooksByUser(req.user.id);
+app.get('/booksuser', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const books = await getBooksByUser(userId);
+  res.send(books);
+});
+
+app.get('/booksuser/search/:searchValue', authenticateToken, async (req, res) => {
+  const { searchValue } = req.params;
+  const userId = req.user.id;
+  const books = await getBooksByUserBySearch(userId, searchValue);
   res.send(books);
 });
 

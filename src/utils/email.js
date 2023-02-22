@@ -57,7 +57,6 @@ export const sendEmailOnPayment = async (recipientEmail, bookNames, totalPrice) 
     from: process.env.EMAIL_USER,
     to: recipientEmail,
     subject: 'Successfull payment!',
-    //text: `Dear customer, your order has been confirmed! \n\nYou successfully bought the following books: ${separatedBookNames}.\n\nYour total purchase amount was $${totalPrice}. \n\nWe appreciate your business and hope you enjoy your new books! \n\nBest regards, BookStore.`,
     html: `
       <html>
         <head>
