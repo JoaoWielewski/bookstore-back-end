@@ -79,6 +79,19 @@ export async function deleteBookById(bookId, userId) {
   }
 }
 
+export async function adminDeleteBookById(bookId) {
+  try {
+    const [result] = await pool.query(`
+      DELETE FROM books
+      WHERE idbook = ?
+    `, [bookId]);
+    return result.affectedRows === 1;
+  } catch (error) {
+    console.log(`Error deleting book with ID ${bookId}: ${error}`);
+    return false;
+  }
+}
+
 export async function editBookById(bookId, name, price, imgSrc, description, userId) {
   try {
     const [result] = await pool.query(`

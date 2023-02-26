@@ -6,7 +6,8 @@ import jwt from 'jsonwebtoken';
 import {
   getBooks, getBookById, createUser, getUserByEmail,
   getUser, getBooksByUser, registerBook, bookOwner,
-  deleteBookById, editBookById, getBooksBySearch, getBooksByUserBySearch,
+  deleteBookById, editBookById, getBooksBySearch,
+  getBooksByUserBySearch, adminDeleteBookById,
 } from './queries.js';
 import { sendEmailOnPayment, sendEmailOnRegister } from './utils/email.js';
 
@@ -70,7 +71,15 @@ app.get('/bookowner/:bookId', async (req, res) => {
 app.delete('/deletebook/:bookId', authenticateToken, async (req, res) => {
   const { bookId } = req.params;
   const userId = req.user.id;
-  const result = await deleteBookById(bookId, userId);
+  const userEmail = req.user.email;
+
+  let result = '';
+  if (userEmail !== 'admin@gmail.com') {
+    result = await deleteBookById(bookId, userId);
+  } else {
+    result = await adminDeleteBookById(bookId);
+  }
+
   res.send(result);
 });
 
@@ -90,8 +99,8 @@ app.put('/editbook/:bookId', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/users/:email/:password', async (req, res) => {
-  const { email, password } = req.params;
+app.post('/user', async (req, res) => {
+  const { email, password } = req.body;
   const user = await getUser(email);
 
   if (user == null) {
@@ -109,8 +118,8 @@ app.get('/users/:email/:password', async (req, res) => {
   }
 });
 
-app.get('/login/:email/:password', async (req, res) => {
-  const { email, password } = req.params;
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
   const user = await getUser(email);
 
   if (user == null) {
@@ -122,6 +131,13 @@ app.get('/login/:email/:password', async (req, res) => {
       delete user.iduser;
       delete user.password;
       user.jwt = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+
+      if (user.email !== 'admin@gmail.com') {
+        user.role = 'user';
+      } else {
+        user.role = 'admin';
+      }
+
       res.send(user);
     } else {
       res.send();
@@ -168,7 +184,7 @@ app.post('/sendemailregister', async (req, res) => {
   const { recipientEmail } = req.body;
 
   try {
-    sendEmailOnRegister(recipientEmail);
+    // sendEmailOnRegister(recipientEmail);
     res.status(200);
   } catch (error) {
     console.log(error);
@@ -180,7 +196,7 @@ app.post('/sendemailpayment', async (req, res) => {
   const { recipientEmail, bookNames, totalPrice } = req.body;
 
   try {
-    sendEmailOnPayment(recipientEmail, bookNames, totalPrice);
+    // sendEmailOnPayment(recipientEmail, bookNames, totalPrice);
     res.status(200);
   } catch (error) {
     console.log(error);
