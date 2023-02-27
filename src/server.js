@@ -22,50 +22,78 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cors());
 
 app.get('/books', async (req, res) => {
-  const books = await getBooks();
-  res.send(books);
+  try {
+    const books = await getBooks();
+    res.send(books);
+  } catch (error) {
+    res.status(500).send({ error: 'Internal server error' });
+  }
 });
 
 app.get('/books/search/:searchValue', async (req, res) => {
-  const { searchValue } = req.params;
-  const books = await getBooksBySearch(searchValue);
-  res.send(books);
+  try {
+    const { searchValue } = req.params;
+    const books = await getBooksBySearch(searchValue);
+    res.send(books);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to retrieve books.' });
+  }
 });
 
 app.get('/books/:id', async (req, res) => {
-  const { id } = req.params;
-  const book = await getBookById(id);
-  res.send(book);
+  try {
+    const { id } = req.params;
+    const book = await getBookById(id);
+    res.send(book);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get book by id.' });
+  }
 });
 
 app.get('/users/:email', async (req, res) => {
-  const { email } = req.params;
-  const user = await getUserByEmail(email);
+  try {
+    const { email } = req.params;
+    const user = await getUserByEmail(email);
 
-  if (user) {
-    res.send(user);
-  } else {
-    res.sendStatus(404);
+    if (user) {
+      res.send(user);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get user by email.' });
   }
 });
 
 app.get('/booksuser', authenticateToken, async (req, res) => {
-  const userId = req.user.id;
-  const books = await getBooksByUser(userId);
-  res.send(books);
+  try {
+    const userId = req.user.id;
+    const books = await getBooksByUser(userId);
+    res.send(books);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get books by user.' });
+  }
 });
 
 app.get('/booksuser/search/:searchValue', authenticateToken, async (req, res) => {
-  const { searchValue } = req.params;
-  const userId = req.user.id;
-  const books = await getBooksByUserBySearch(userId, searchValue);
-  res.send(books);
+  try {
+    const { searchValue } = req.params;
+    const userId = req.user.id;
+    const books = await getBooksByUserBySearch(userId, searchValue);
+    res.send(books);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get book by user and by search.' });
+  }
 });
 
 app.get('/bookowner/:bookId', async (req, res) => {
-  const { bookId } = req.params;
-  const userId = await bookOwner(bookId);
-  res.send(userId);
+  try {
+    const { bookId } = req.params;
+    const userId = await bookOwner(bookId);
+    res.send(userId);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to get book owner by id.' });
+  }
 });
 
 app.delete('/deletebook/:bookId', authenticateToken, async (req, res) => {
@@ -73,14 +101,18 @@ app.delete('/deletebook/:bookId', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   const userEmail = req.user.email;
 
-  let result = '';
-  if (userEmail !== 'admin@gmail.com') {
-    result = await deleteBookById(bookId, userId);
-  } else {
-    result = await adminDeleteBookById(bookId);
-  }
+  try {
+    let result = '';
+    if (userEmail !== 'admin@gmail.com') {
+      result = await deleteBookById(bookId, userId);
+    } else {
+      result = await adminDeleteBookById(bookId);
+    }
 
-  res.send(result);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to delete book by id.' });
+  }
 });
 
 app.put('/editbook/:bookId', authenticateToken, async (req, res) => {
@@ -88,13 +120,19 @@ app.put('/editbook/:bookId', authenticateToken, async (req, res) => {
   const {
     name, price, imgSrc, description,
   } = req.body;
-  const userId = req.user.id;
 
-  const result = await editBookById(bookId, name, price, imgSrc, description, userId);
+  try {
+    const userId = req.user.id;
 
-  if (result) {
-    res.status(204).send();
-  } else {
+    const result = await editBookById(bookId, name, price, imgSrc, description, userId);
+
+    if (result) {
+      res.status(204).send();
+    } else {
+      res.status(404).send({ error: 'Failed to edit book.' });
+    }
+  } catch (error) {
+    console.log(error);
     res.status(500).send({ error: 'Failed to edit book.' });
   }
 });
@@ -184,7 +222,7 @@ app.post('/sendemailregister', async (req, res) => {
   const { recipientEmail } = req.body;
 
   try {
-    // sendEmailOnRegister(recipientEmail);
+    sendEmailOnRegister(recipientEmail);
     res.status(200);
   } catch (error) {
     console.log(error);
@@ -196,7 +234,7 @@ app.post('/sendemailpayment', async (req, res) => {
   const { recipientEmail, bookNames, totalPrice } = req.body;
 
   try {
-    // sendEmailOnPayment(recipientEmail, bookNames, totalPrice);
+    sendEmailOnPayment(recipientEmail, bookNames, totalPrice);
     res.status(200);
   } catch (error) {
     console.log(error);
